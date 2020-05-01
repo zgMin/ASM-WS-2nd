@@ -20,7 +20,7 @@ code segment
 	show_str:
 			;参数	dh行号，dl列号，cl颜色，ds：si字符串首地址
 			;返回	无
-			;作用	在屏幕dh行dl列，显示cl色的ds：si处字符串
+			;功能	在屏幕dh行dl列，显示cl色的ds：si处字符串
 			push ax
 			push bx
 			push cx
@@ -59,7 +59,7 @@ code segment
 	divdw:	
 			;参数	ax:dd数据的低16位	dx:dd数据的高16位	cx:除数
 			;返回	ax:结果的低16位		dx:结果的高16位		cx:余数
-			;作用	dd除法,放溢出
+			;功能	dd除法,放溢出
 			;算法	X/N=int(H/N)*65536+[rem(H/N)*65536+L]/N
 			push bx
 			push ax
@@ -77,27 +77,35 @@ code segment
 	dtoc:	
 			;参数	ax是word数据	ds:si 字符串首地址
 			;返回	无
-			;作用	将word数据转换成表示十进制数的字符串，0为结尾
+			;作用	将word数据转换成表示十进制数的字符串，以0为结尾
 			push ax
 			push bx
 			push dx
 			push si
-			push cx		;保护寄存器数据
+			push cx		
+			push di		;保护寄存器数据
 			mov bx,10
+			mov di,0
 		s1:	mov dx,0
 			div bx
 			add dx,30h
 			push dx		;进栈，用于逆序
 			mov cx,ax
 			inc cx
-			inc si	;记录字符串位数(包括0)
+			inc di	;记录字符串位数
 			loop s1
-			mov cx,si
-			mov si,0
-		s2:	pop ds:[si]		;出栈，逆序
+			mov cx,0
+			push cx
+			inc di		;结尾0
+			
+			mov cx,di
+			
+		s2:	pop ax
+			mov ds:[si],al			;出栈，逆序
 			inc si
 			loop s2
 			
+			pop di
 			pop cx
 			pop si
 			pop dx
